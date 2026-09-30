@@ -1,50 +1,24 @@
-# Mergington High School Activities API
+# Mergington High School Activities
 
-A super simple FastAPI application that allows students to view and sign up for extracurricular activities.
+An ASP.NET Core minimal API on .NET 10 that serves the activities page and lets students view and sign up for extracurricular activities.
 
-## Features
+## Run
 
-- View all available extracurricular activities
-- Sign up for activities
+Install the .NET 10 SDK, then run from the repository root:
 
-## Getting Started
+```powershell
+dotnet run
+```
 
-1. Install the dependencies:
+Open the URL printed by the command. The existing page, JavaScript, and CSS are served by the .NET app.
 
-   ```
-   pip install fastapi uvicorn
-   ```
+## API
 
-2. Run the application:
+| Method | Endpoint                                                          | Description                                        |
+| ------ | ----------------------------------------------------------------- | -------------------------------------------------- |
+| GET    | `/activities`                                                     | Return activities, details, and participant emails |
+| POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up with an allowed school email               |
 
-   ```
-   python app.py
-   ```
+Signup accepts `@mergington.edu` and `@merginton.edu` addresses, normalizes email casing and whitespace, and rejects invalid domains, unknown activities, and duplicate signups. Errors use a JSON `detail` field to match the existing frontend.
 
-3. Open your browser and go to:
-   - API documentation: http://localhost:8000/docs
-   - Alternative documentation: http://localhost:8000/redoc
-
-## API Endpoints
-
-| Method | Endpoint                                                          | Description                                                         |
-| ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| GET    | `/activities`                                                     | Get all activities with their details and current participant count |
-| POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity                                             |
-
-## Data Model
-
-The application uses a simple data model with meaningful identifiers:
-
-1. **Activities** - Uses activity name as identifier:
-
-   - Description
-   - Schedule
-   - Maximum number of participants allowed
-   - List of student emails who are signed up
-
-2. **Students** - Uses email as identifier:
-   - Name
-   - Grade level
-
-All data is stored in memory, which means data will be reset when the server restarts.
+Activity data is held in memory and resets when the process restarts.

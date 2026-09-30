@@ -74,6 +74,78 @@ section h3 {
   margin-bottom: 8px;
 }
 
+.participants-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #dce3ed;
+}
+
+.participants-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #1a237e;
+  font-size: 14px;
+}
+
+.participant-count {
+  display: inline-flex;
+  min-width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #e8edf8;
+  color: #1a237e;
+  font-size: 12px;
+}
+
+.participant-list {
+  padding-left: 20px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.participant-list li {
+  padding: 2px 0;
+  overflow-wrap: anywhere;
+}
+
+.participant-list .participant-empty {
+  color: #737b88;
+  font-style: italic;
+  list-style: none;
+}
+
+.search-group {
+  margin-bottom: 18px;
+}
+
+.search-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #1a237e;
+}
+
+.search-group input,
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.empty-state {
+  color: #666;
+  font-style: italic;
+  padding: 12px 0;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -82,15 +154,6 @@ section h3 {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
 }
 
 button {

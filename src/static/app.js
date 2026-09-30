@@ -3,43 +3,115 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const searchInput = document.getElementById("activity-search");
+  let allActivities = {};
+
+  function normalizeText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .trim();
+  }
+
+  function matchesSearch(name, details, searchTerm) {
+    if (!searchTerm) {
+      return true;
+    }
+
+    const searchableText = [name, details.description, details.schedule]
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(searchTerm);
+  }
+
+  function renderActivities() {
+    const searchTerm = normalizeText(searchInput.value);
+    const filteredEntries = Object.entries(allActivities).filter(
+      ([name, details]) => matchesSearch(name, details, searchTerm),
+    );
+
+    activitiesList.innerHTML = "";
+
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.textContent = "-- Select an activity --";
+    activitySelect.replaceChildren(placeholderOption);
+
+    if (filteredEntries.length === 0) {
+      const emptyState = document.createElement("p");
+      emptyState.className = "empty-state";
+      emptyState.textContent = "No activities match your search.";
+      activitiesList.appendChild(emptyState);
+      return;
+    }
+
+    filteredEntries.forEach(([name, details]) => {
+      const activityCard = document.createElement("div");
+      activityCard.className = "activity-card";
+
+      const spotsLeft = details.max_participants - details.participants.length;
+
+      activityCard.innerHTML = `
+        <h4>${name}</h4>
+        <p>${details.description}</p>
+        <p><strong>Schedule:</strong> ${details.schedule}</p>
+        <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+      `;
+
+      const participantsSection = document.createElement("div");
+      participantsSection.className = "participants-section";
+
+      const participantsHeading = document.createElement("h5");
+      participantsHeading.className = "participants-heading";
+      participantsHeading.textContent = "Participants";
+
+      const participantCount = document.createElement("span");
+      participantCount.className = "participant-count";
+      participantCount.textContent = details.participants.length;
+      participantsHeading.appendChild(participantCount);
+      participantsSection.appendChild(participantsHeading);
+
+      const participantList = document.createElement("ul");
+      participantList.className = "participant-list";
+
+      if (details.participants.length === 0) {
+        const emptyMessage = document.createElement("li");
+        emptyMessage.className = "participant-empty";
+        emptyMessage.textContent = "No participants yet";
+        participantList.appendChild(emptyMessage);
+      } else {
+        details.participants.forEach((email) => {
+          const participant = document.createElement("li");
+          participant.textContent = email;
+          participantList.appendChild(participant);
+        });
+      }
+
+      participantsSection.appendChild(participantList);
+      activityCard.appendChild(participantsSection);
+      activitiesList.appendChild(activityCard);
+
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      activitySelect.appendChild(option);
+    });
+  }
 
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
       const response = await fetch("/activities");
-      const activities = await response.json();
-
-      // Clear loading message
-      activitiesList.innerHTML = "";
-
-      // Populate activities list
-      Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
-
-        const spotsLeft = details.max_participants - details.participants.length;
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
-
-        activitiesList.appendChild(activityCard);
-
-        // Add option to select dropdown
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        activitySelect.appendChild(option);
-      });
+      allActivities = await response.json();
+      renderActivities();
     } catch (error) {
-      activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
+      activitiesList.innerHTML =
+        "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
   }
+
+  searchInput.addEventListener("input", renderActivities);
 
   // Handle form submission
   signupForm.addEventListener("submit", async (event) => {
@@ -53,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
-        }
+        },
       );
 
       const result = await response.json();
@@ -62,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
