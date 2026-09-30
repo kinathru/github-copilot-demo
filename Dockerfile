@@ -1,12 +1,14 @@
-FROM python:3.12-slim
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /source
 
+COPY . .
+RUN dotnet publish MergingtonActivities.csproj --configuration Release --output /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+COPY --from=build /app/publish .
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV ASPNETCORE_HTTP_PORTS=8080
+EXPOSE 8080
 
-COPY src ./src
-
-EXPOSE 8000
-
-CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["dotnet", "MergingtonActivities.dll"]
