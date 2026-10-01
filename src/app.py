@@ -67,6 +67,15 @@ def get_activities():
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
     """Sign up a student for an activity"""
+    normalized_email = email.lower().strip()
+    allowed_domains = {"mergington.edu", "merginton.edu"}
+
+    if "@" not in normalized_email or normalized_email.split("@")[-1] not in allowed_domains:
+        raise HTTPException(
+            status_code=400,
+            detail="Only @mergington.edu email addresses are allowed to sign up."
+        )
+
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
@@ -75,12 +84,12 @@ def signup_for_activity(activity_name: str, email: str):
     activity = activities[activity_name]
 
     # Check if already signed up
-    if email in activity["participants"]:
+    if normalized_email in activity["participants"]:
         raise HTTPException(
             status_code=409,
             detail="Already signed up for this activity"
         )
 
     # Add student
-    activity["participants"].append(email)
-    return {"message": f"Signed up {email} for {activity_name}"}
+    activity["participants"].append(normalized_email)
+    return {"message": f"Signed up {normalized_email} for {activity_name}"}
