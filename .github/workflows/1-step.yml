@@ -2,9 +2,10 @@ name: Step 1
 
 on:
   push:
-    # Trigger on pushes to any branch except the protected `main` branch
+    # Trigger on exercise branches, excluding `main` and Copilot task branches
     branches-ignore:
       - main
+      - 'copilot/**'
 
 permissions:
   contents: read
